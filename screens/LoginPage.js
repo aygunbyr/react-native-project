@@ -10,7 +10,7 @@ import {
 
 import Loading from '../components/Loading';
 
-const LoginPage = () => {
+const LoginPage = ({ navigation }) => {
   const [name, setName] = useState('');
   const [lastName, setLastName] = useState('');
   const [result, setResult] = useState('');
@@ -18,28 +18,34 @@ const LoginPage = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.welcome}>Welcome {result}</Text>
+
       <Image
         source={require('../assets/images/password_2665311.png')}
         style={styles.image}
       />
 
-      <Text style={styles.welcome}>Welcome {result}</Text>
-      <Text>Email</Text>
-      <TextInput
-        inputMode="email"
-        style={styles.textInputStyle}
-        placeholder="Enter Your Email"
-        value={name}
-        onChangeText={setName}
-      />
-      <Text>Password</Text>
-      <TextInput
-        secureTextEntry
-        style={styles.textInputStyle}
-        placeholder="Enter Your Password"
-        value={lastName}
-        onChangeText={setLastName}
-      />
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputBoxText}>Email</Text>
+        <TextInput
+          inputMode="email"
+          style={styles.textInputStyle}
+          placeholder="Enter Your Email"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputBoxText}>Password</Text>
+        <TextInput
+          secureTextEntry
+          style={styles.textInputStyle}
+          placeholder="Enter Your Password"
+          value={lastName}
+          onChangeText={setLastName}
+        />
+      </View>
 
       <Pressable
         style={({ pressed }) => [
@@ -50,8 +56,22 @@ const LoginPage = () => {
         ]}
         onPress={() => setIsLoading(true)}
       >
-        <Text style={styles.buttonText}>Save</Text>
+        <Text style={styles.buttonText}>Login</Text>
       </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? 'lightgray' : 'gray',
+            marginTop: 50,
+          },
+          styles.signupButton,
+        ]}
+        onPress={() => navigation.navigate('Signup')}
+      >
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </Pressable>
+
       {isLoading ? (
         <Loading changeIsLoading={() => setIsLoading(false)} />
       ) : null}
@@ -67,10 +87,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'tomato',
+  },
+  inputContainer: {
+    width: '80%',
   },
   textInputStyle: {
-    borderWidth: 1,
-    width: 200,
+    borderBottomWidth: 0.5,
+    borderColor: 'white',
+    width: '100%',
     height: 50,
     borderRadius: 10,
     marginVertical: 10,
@@ -80,10 +105,11 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 10,
-    width: 200,
+    width: '80%',
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 20,
   },
   buttonText: {
     fontWeight: 'bold',
@@ -92,9 +118,24 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
+    marginBottom: 20,
   },
   welcome: {
     fontWeight: 'bold',
-    fontSize: 26,
+    fontSize: 30,
+    marginBottom: 30,
+    color: 'white',
+  },
+  signupButton: {
+    width: '30%',
+    height: 50,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputBoxText: {
+    fontWeight: 'bold',
+    alignSelf: 'flex-start',
+    color: 'white',
   },
 });
