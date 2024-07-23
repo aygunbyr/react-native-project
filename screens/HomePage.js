@@ -10,11 +10,15 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { CustomButton } from '../components';
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/userSlice';
 
 const HomePage = () => {
   const [data, setData] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
   const [updatedData, setUpdatedData] = useState('');
+
+  const dispatch = useDispatch();
 
   const sendData = async () => {
     try {
@@ -71,6 +75,11 @@ const HomePage = () => {
   useEffect(() => {
     getData();
   }, [isSaved]);
+
+  // Kullanici cikis islemleri
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <View style={styles.container}>
@@ -135,6 +144,14 @@ const HomePage = () => {
         buttonColorPressed="gray"
         buttonText="Update Data"
         handleOnPress={() => updateData()}
+        setWidth="40%"
+      />
+
+      <CustomButton
+        buttonColor="red"
+        buttonColorPressed="gray"
+        buttonText="Logout"
+        handleOnPress={handleLogout}
         setWidth="40%"
       />
     </View>
