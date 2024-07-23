@@ -1,4 +1,12 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  SafeAreaView,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   collection,
@@ -82,7 +90,7 @@ const HomePage = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <TextInput
         placeholder="enter your data"
         onChangeText={setUpdatedData}
@@ -96,7 +104,20 @@ const HomePage = () => {
         }}
       />
 
-      {data.map((item, index) => (
+      <FlatList
+        style={styles.flatList}
+        data={data}
+        renderItem={({ item }) => (
+          <View style={styles.flatListItemContainer}>
+            <Text>{item.id}</Text>
+            <Text>{item.title}</Text>
+            <Text>{item.content}</Text>
+          </View>
+        )}
+        keyExtractor={(item) => item.id}
+      />
+
+      {/* {data.map((item, index) => (
         <Pressable
           key={index}
           onPress={() => {
@@ -110,7 +131,7 @@ const HomePage = () => {
           <Text>{item.content}</Text>
           <Text>{item.lesson}</Text>
         </Pressable>
-      ))}
+      ))} */}
 
       <CustomButton
         buttonColor="blue"
@@ -154,7 +175,7 @@ const HomePage = () => {
         handleOnPress={handleLogout}
         setWidth="40%"
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -165,5 +186,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'tomato',
+  },
+  flatListItemContainer: {
+    borderWidth: 1,
+    marginVertical: 5,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flatList: {
+    backgroundColor: 'white',
+    width: '90%',
+    padding: 10,
   },
 });
