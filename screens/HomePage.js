@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   collection,
@@ -14,6 +14,7 @@ import { CustomButton } from '../components';
 const HomePage = () => {
   const [data, setData] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
+  const [updatedData, setUpdatedData] = useState('');
 
   const sendData = async () => {
     try {
@@ -34,7 +35,10 @@ const HomePage = () => {
       const querySnapshot = await getDocs(collection(db, 'reactNativeLesson'));
       setData([]);
       querySnapshot.forEach((doc) => {
-        allData.push(doc.data());
+        allData.push({
+          id: doc.id,
+          ...doc.data(),
+        });
       });
       setData(allData);
     } catch (error) {
@@ -42,17 +46,21 @@ const HomePage = () => {
     }
   };
 
-  const deleteData = async () => {
-    // collection name ve document id
-    await deleteDoc(doc(db, 'reactNativeLesson', 'k6iRwLEz2XVrwm8R92Za'));
+  const deleteData = async (value) => {
+    try {
+      // collection name ve document id
+      await deleteDoc(doc(db, 'reactNativeLesson', value));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const updateData = async () => {
+  const updateData = async (value) => {
     try {
-      const lessonRef = doc(db, 'reactNativeLesson', 'zUELoyp7RWqCzaD4gCPo');
+      const lessonRef = doc(db, 'reactNativeLesson', value);
 
       await updateDoc(lessonRef, {
-        lesson: 145,
+        content: updatedData,
       });
     } catch (error) {
       console.log(error);
@@ -66,14 +74,33 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
-      <Text>HomePage</Text>
+      <TextInput
+        placeholder="enter your data"
+        onChangeText={setUpdatedData}
+        value={updatedData}
+        style={{
+          borderWidth: 1,
+          width: '50%',
+          paddingVertical: 10,
+          textAlign: 'center',
+          marginBottom: 10,
+        }}
+      />
 
       {data.map((item, index) => (
-        <View key={index}>
+        <Pressable
+          key={index}
+          onPress={() => {
+            // deleteData(item.id);
+            updateData(item.id);
+            setIsSaved(!isSaved);
+          }}
+        >
+          <Text>{item.id}</Text>
           <Text>{item.title}</Text>
           <Text>{item.content}</Text>
           <Text>{item.lesson}</Text>
-        </View>
+        </Pressable>
       ))}
 
       <CustomButton
