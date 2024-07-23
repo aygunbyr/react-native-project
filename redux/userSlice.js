@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -23,6 +24,8 @@ export const login = createAsyncThunk(
         user: user,
       };
 
+      await AsyncStorage.setItem('userToken', token);
+
       // return value is action payload
       return userData;
     } catch (error) {
@@ -31,6 +34,20 @@ export const login = createAsyncThunk(
     }
   }
 );
+
+// Kullanici otomatik giris islemleri
+export const autoLogin = createAsyncThunk('user/autoLogin', async () => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+    if (token) {
+      return token;
+    } else {
+      throw new Error('User Not Logged In');
+    }
+  } catch (error) {
+    throw error;
+  }
+});
 
 const initialState = {
   isLoading: false,
@@ -64,6 +81,20 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.isAuth = false;
         state.error = action.error.message;
+      })
+      .addCase(autoLogin.pending, (state, action) => {
+        state.isLoading = true;
+        state.isAuth = false;
+      })
+      .addCase(autoLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuth = true;
+        state.token = action.payload;
+      })
+      .addCase(autoLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isAuth = false;
+        state.token = null;
       });
   },
 });

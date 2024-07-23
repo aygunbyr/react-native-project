@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Loading, CustomTextInput, CustomButton } from '../components';
-import { setIsLoading, login } from '../redux/userSlice';
+import { setIsLoading, login, autoLogin } from '../redux/userSlice';
 
 const LoginPage = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -11,6 +11,11 @@ const LoginPage = ({ navigation }) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Kullanici daha once giris yaptiysa kontrol et ve otomatik giris yap
+  useEffect(() => {
+    dispatch(autoLogin());
+  }, []);
 
   return (
     <View style={styles.container}>
