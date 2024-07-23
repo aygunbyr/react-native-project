@@ -21,6 +21,13 @@ import { CustomButton } from '../components';
 import { useDispatch } from 'react-redux';
 import { logout } from '../redux/userSlice';
 
+import Animated, {
+  BounceIn,
+  FlipInEasyX,
+  FlipInYRight,
+  PinwheelIn,
+} from 'react-native-reanimated';
+
 const HomePage = () => {
   const [data, setData] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
@@ -104,15 +111,19 @@ const HomePage = () => {
         }}
       />
 
-      <FlatList
+      <Animated.FlatList
+        entering={PinwheelIn}
         style={styles.flatList}
         data={data}
-        renderItem={({ item }) => (
-          <View style={styles.flatListItemContainer}>
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={FlipInYRight.delay(index * 100)}
+            style={styles.flatListItemContainer}
+          >
             <Text>{item.id}</Text>
             <Text>{item.title}</Text>
             <Text>{item.content}</Text>
-          </View>
+          </Animated.View>
         )}
         keyExtractor={(item) => item.id}
       />
