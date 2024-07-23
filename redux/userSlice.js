@@ -16,7 +16,7 @@ export const login = createAsyncThunk(
       const user = userCredential.user;
       const token = user.stsTokenManager.accessToken;
 
-      console.log(user);
+      // console.log(user);
 
       const userData = {
         token,
