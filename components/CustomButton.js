@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
   },
   buttonText: {
     fontWeight: 'bold',

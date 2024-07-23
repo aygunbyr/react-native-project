@@ -18,7 +18,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { CustomButton } from '../components';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userSlice';
 
 import Animated, {
@@ -27,43 +27,14 @@ import Animated, {
   FlipInYRight,
   PinwheelIn,
 } from 'react-native-reanimated';
+import { AntDesign } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import { setUserInput, saveData } from '../redux/dataSlice';
 
 const HomePage = () => {
-  const [data, setData] = useState([]);
-  const [isSaved, setIsSaved] = useState(false);
-  const [updatedData, setUpdatedData] = useState('');
-
   const dispatch = useDispatch();
 
-  const sendData = async () => {
-    try {
-      const docRef = await addDoc(collection(db, 'reactNativeLesson'), {
-        title: 'Zero to hero',
-        content: 'React Native tutorial for beginners',
-        lesson: 95,
-      });
-      console.log('Document written with ID: ', docRef.id);
-    } catch (e) {
-      console.error('Error adding document: ', e);
-    }
-  };
-
-  const getData = async () => {
-    const allData = [];
-    try {
-      const querySnapshot = await getDocs(collection(db, 'reactNativeLesson'));
-      setData([]);
-      querySnapshot.forEach((doc) => {
-        allData.push({
-          id: doc.id,
-          ...doc.data(),
-        });
-      });
-      setData(allData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const { data, userInput } = useSelector((state) => state.data);
 
   const deleteData = async (value) => {
     try {
@@ -74,22 +45,18 @@ const HomePage = () => {
     }
   };
 
-  const updateData = async (value) => {
-    try {
-      const lessonRef = doc(db, 'reactNativeLesson', value);
+  // const updateData = async (value) => {
+  //   try {
+  //     const lessonRef = doc(db, 'reactNativeLesson', value);
 
-      await updateDoc(lessonRef, {
-        content: updatedData,
-      });
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, [isSaved]);
+  //     await updateDoc(lessonRef, {
+  //       content: updatedData,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw error;
+  //   }
+  // };
 
   // Kullanici cikis islemleri
   const handleLogout = () => {
@@ -98,19 +65,7 @@ const HomePage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TextInput
-        placeholder="enter your data"
-        onChangeText={setUpdatedData}
-        value={updatedData}
-        style={{
-          borderWidth: 1,
-          width: '50%',
-          paddingVertical: 10,
-          textAlign: 'center',
-          marginBottom: 10,
-        }}
-      />
-
+      <Text style={styles.title}>To-do List</Text>
       <Animated.FlatList
         entering={PinwheelIn}
         style={styles.flatList}
@@ -120,72 +75,48 @@ const HomePage = () => {
             entering={FlipInYRight.delay(index * 100)}
             style={styles.flatListItemContainer}
           >
-            <Text>{item.id}</Text>
-            <Text>{item.title}</Text>
-            <Text>{item.content}</Text>
+            <Pressable
+              onPress={() => deleteData(item.id)}
+              style={styles.iconContainer}
+            >
+              <AntDesign name="checkcircle" size={24} color="black" />
+              <Entypo name="circle" size={24} color="black" />
+            </Pressable>
+
+            <View style={styles.itemContainer}>
+              <Text style={styles.itemTitle}>{item.title}</Text>
+              <Text>{item.content}</Text>
+            </View>
           </Animated.View>
         )}
         keyExtractor={(item) => item.id}
       />
 
-      {/* {data.map((item, index) => (
-        <Pressable
-          key={index}
-          onPress={() => {
-            // deleteData(item.id);
-            updateData(item.id);
-            setIsSaved(!isSaved);
-          }}
-        >
-          <Text>{item.id}</Text>
-          <Text>{item.title}</Text>
-          <Text>{item.content}</Text>
-          <Text>{item.lesson}</Text>
-        </Pressable>
-      ))} */}
+      <View style={styles.userInputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Add To Do"
+          onChangeText={(text) => dispatch(setUserInput(text))}
+          value={userInput}
+          placeholderTextColor="lightgray"
+        />
 
-      <CustomButton
-        buttonColor="blue"
-        buttonColorPressed="gray"
-        buttonText="Save"
-        handleOnPress={() => {
-          sendData();
-          setIsSaved(!isSaved);
-        }}
-        setWidth="40%"
-      />
+        <CustomButton
+          buttonColor="blue"
+          buttonColorPressed="gray"
+          buttonText="Save Data"
+          handleOnPress={() => dispatch(saveData(userInput))}
+          setWidth="40%"
+        />
+      </View>
 
-      <CustomButton
-        buttonColor="blue"
-        buttonColorPressed="gray"
-        buttonText="Get Data"
-        handleOnPress={() => getData()}
-        setWidth="40%"
-      />
-
-      <CustomButton
-        buttonColor="blue"
-        buttonColorPressed="gray"
-        buttonText="Delete Data"
-        handleOnPress={() => deleteData()}
-        setWidth="40%"
-      />
-
-      <CustomButton
-        buttonColor="blue"
-        buttonColorPressed="gray"
-        buttonText="Update Data"
-        handleOnPress={() => updateData()}
-        setWidth="40%"
-      />
-
-      <CustomButton
+      {/* <CustomButton
         buttonColor="red"
         buttonColorPressed="gray"
         buttonText="Logout"
         handleOnPress={handleLogout}
         setWidth="40%"
-      />
+      /> */}
     </SafeAreaView>
   );
 };
@@ -199,16 +130,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'tomato',
   },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'blue',
+  },
   flatListItemContainer: {
-    borderWidth: 1,
-    marginVertical: 5,
+    borderBottomWidth: 0.3,
+    marginVertical: 10,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
   flatList: {
-    backgroundColor: 'white',
     width: '90%',
     padding: 10,
+  },
+  itemContainer: {
+    flex: 5,
+    marginLeft: 10,
+  },
+  itemTitle: {
+    fontWeight: 'bold',
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  userInputContainer: {
+    display: 'flex',
+    width: '90%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  textInput: {
+    flex: 3,
+    borderRadius: 5,
+    borderWidth: 0.3,
+    borderColor: 'white',
+    paddingVertical: 5,
+    textAlign: 'center',
+    marginRight: 5,
   },
 });
